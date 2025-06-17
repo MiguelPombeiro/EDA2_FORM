@@ -1,5 +1,3 @@
-
-
 SLIDE 7
 ---------------
 MAKE-SETS(n)
@@ -37,7 +35,7 @@ UNION-BY-RANK(P, i, j)
 1 ri <- FIND-SET(P, i)
 2 rj <- FIND-SET(P, j)
 3 if (P[rj] < P[ri]) // j’s set tree taller than i’s
-4 P[ri] <- rj
+4   P[ri] <- rj
 5 else
 6   if (P[rj] == P[ri]) // both heights r the same
 7       P[ri] <- P[ri] - 1
@@ -83,7 +81,7 @@ representa energia que pode ser usada em operações futuras
     estados Di e Dj
  - ci é o custo real da i-ésima operação
  - O custo amortizado da i-ésima operação, relativo a Φ, é
-    ci = ci + Φ(Di ) − Φ(Di−1)
+    ^ci^ = ci + Φ(Di) − Φ(Di−1)
 
 Pretende-se obter um majorante do custo da sequência de n > 0
 operações
@@ -99,12 +97,11 @@ Logo, a funçao Φ tem de ser tal que, para qualquer 0 < i ≤ n,
 
 SLIDE 9
 
-
-Cálculo dos caminhos de menor peso de um nó s para os restantes
+Cálculo dos caminhos de menor peso de um nós para os restantes
 nós do grafo (single-source shortest paths):
 
-O caminho p é mais curto que o caminho p′ se o peso de p é
-menor que o peso de p′
+O caminho p é mais curto que o caminho p' se o peso de p é
+menor que o peso de p'
 
 1. Cálculo dos caminhos mais curtos num grafo orientado acíclico
 (DAG), com pesos possivelmente negativos
@@ -230,17 +227,18 @@ Algoritmo de Bellman-Ford O(VE)
 Algoritmo de Floyd-Warshall Θ(V^3)
 
 
+
 SLIDE 10
 
 
 
-
-Caminhos mais curtos entre cada dois vrtices de um grafo
+Caminhos mais curtos entre cada dois vértices de um grafo
 
 Vértices intermédios de um caminho:
 
 Os vértices intermédios de um caminho simples v1 v2 . . . vl são os
 vértices {v2, . . . , vl−1}
+
 
 -----------
 Algoritmo de Floyd-Warshall:
@@ -259,9 +257,9 @@ respectivamente, considerando só os caminhos cujos nós
 intermédios estão em {1, 2, . . . , k−1}
 
 Wij: matriz de adjacências do grafo
-    - 0       se i = j
-    - w(i, j) se i ≠ j ∧ (i, j) ∈ E
-    - ∞       se i ≠ j ∧ (i, j) ∉ E
+    -> 0       se i = j
+    -> w(i, j) se i ≠ j ∧ (i, j) ∈ E
+    -> ∞       se i ≠ j ∧ (i, j) ∉ E
 
 dij^(k): peso de um caminho mais curto de i para j com nós
 intermédios contidos em {1, 2, . . . , k}
@@ -270,6 +268,9 @@ intermédios contidos em {1, 2, . . . , k}
 Queremos calcular dij^(n) , i, j ∈ V
     
 FLOYD WARSHAL CALCULO ITERATIVO MATRIZES
+
+A matriz ^(0) é uma matriz de adjacencias, mas com +∞ envés de NIL(0)
+e a diagonal principal a 0 (Se não tiver laços (ciclos para ele mesmo)).
 
 FLOYD-WARSHALL-1(w)
 1 n <- w.rows
@@ -420,21 +421,21 @@ Complexidade temporal do algoritmo de Edmonds-Karp
 
 EDMONDS-KARP(G, s, t)
 1 for each edge (u,v) in G.E do
-2 	(u,v).f <- 0 		// initial flow f(u,v) = 0
+2   (u,v).f <- 0 		// initial flow f(u,v) = 0
 3 Gf <- RESIDUAL-NET(G)
 4 while (cf <- BFS-FIND-PATH(Gf, s, t)) > 0 do
-5		v <- t
-6 	while v.p != NIL do
-7 		if edge (v.p,v) is in G.E then
-8 			(v.p,v).f = (v.p,v).f + cf // flow increase
-9 		else 					// edge (v,v.p) is in G.E
-10 			(v,v.p).f = (v,v.p).f - cf // cancelled flow
-11 		v <- v.p
-12 UPDATE(Gf, G) 
-
+5       v <- t
+6   while v.p != NIL do
+7       if edge (v.p,v) is in G.E then
+8           (v.p,v).f = (v.p,v).f + cf // flow increase
+9       else                   // edge (v,v.p) is in G.E
+10           (v,v.p).f = (v,v.p).f - cf // cancelled flow
+11       v <- v.p
+12 UPDATE(Gf, G)
 
 
 -------EDMONDS-KARP EM JAVA -------------
+
 
 /*
 Actualiza as capacidades (residuais) do arcos (FROM,TO) e
@@ -627,15 +628,15 @@ Uma instância de um problema é a concretização do problema para
 um determinado conjunto de valores (input)
 
 P (polynomial time)
--Classe dos problemas (de decisão) para os quais existe um
+- Classe dos problemas (de decisão) para os quais existe um
 algoritmo, que corre em tempo polinomial, que os resolve
 
 PSPACE
--Classe dos problemas (de decisão) para os quais existe um
-algoritmo, que usa espa¸co polinomial, que os resolve
+- Classe dos problemas (de decisão) para os quais existe um
+algoritmo, que usa espaço polinomial, que os resolve
 
 EXPTIME
--Classe dos problemas (de decisão) para os quais existe um
+- Classe dos problemas (de decisão) para os quais existe um
 algoritmo, que corre em tempo exponencial, que os resolve
                 P ⊆ PSPACE ⊆ EXPTIME
                 P ⊂ EXPTIME
