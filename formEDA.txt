@@ -189,7 +189,7 @@ public int[] dijkstra(int s)
 	{
 		KeyValuePair<Integer,Integer> u = Q.remove();
 		if (u.key > d[u.value])
-			continue; // caminho mais curto para U j´a encontrado
+			continue; // caminho mais curto para U já encontrado
 		for (Edge e : adjacents[u.value])
 		{
 			int v = e.destination;
@@ -263,8 +263,8 @@ Wij: matriz de adjacências do grafo
     - w(i, j) se i ≠ j ∧ (i, j) ∈ E
     - ∞       se i ≠ j ∧ (i, j) ∉ E
 
-dij^(k): peso de um caminho mais curto de i para j com n´os
-interm´edios contidos em {1, 2, . . . , k}
+dij^(k): peso de um caminho mais curto de i para j com nós
+intermédios contidos em {1, 2, . . . , k}
     - se k = 0 : Wij 
     - se k ≥ 1 : min{dij^(k−1), dik^(k−1) + dkj^(k−1)}
 Queremos calcular dij^(n) , i, j ∈ V
@@ -360,9 +360,47 @@ A rede residual resultante é Gf = (V , E'), com
         E' = { (u,v) ∈ E | c(u,v) > 0 }
 
 
+Numa rede residual
+    - A capacidade dos arcos comuns à rede original corresponde à
+      capacidade não utilizada pelo fluxo
+    - A capacidade dos arcos com orientação oposta à dos da rede
+      original corresponde à quantidade de fluxo que pode ser
+      cancelada
+Uma rede residual indica os limites das alterações que podem ser
+feitas a um fluxo em cada ligação
 
 
+Incremento do Fluxo
+Seja Gf uma rede residual e seja p = v1 v2 . . . vk , com v1 = s e
+vk = t, um caminho simples em Gf , da fonte s para o dreno t
 
+A capacidade residual do caminho p é
+        cf(p) = min{cf(vi , vi+1 )} > 0, 1 ≤ i < k
+(ou seja, o menor valor de cf(u,v) ao longo do caminho p)
+           f(u,v) + cf(p) se (u,v) ∈ E está em P
+f'(u,v) =  f(u,v) - cf(p) se (v,u) ∉ E está em p
+           f(u,v) se nem (u,v) nem (v,u) estão em p
+
+------------ Ver equação do slide 207 ----------------
+
+O valor de f' é |f'| = |f| + cf(p)
+
+
+Método de Ford-Fulkerson
+1. Inicializar f(u,v) = 0, para todo (u,v) ∈ E
+2. Enquanto houver um caminho simples p = s . . . t na rede
+residual
+    a. Seja cf (p) = min { cf(u,v) | (u,v) está em p }
+    b. Para cada arco (u,v) em p
+        - Se (u,v) ∈ E , o fluxo no arco (u,v) é 
+          aumentado em cf (p) unidades.
+        f (u,v) = f (u,v) + cf (p)
+        - Senão, então (v,u) ∈ E e são canceladas cf (p)
+          unidades de fluxo no arco (v , u)
+        f (v,u) = f (v,u) − cf (p)
+
+
+EDMONDS-KARP
 
 Complexidade temporal do algoritmo de Edmonds-Karp
     Grafo representado através de listas de adjacências
@@ -504,7 +542,7 @@ private int findPath(int[] p)
 
 /*
 Algoritmo de Edmonds-Karp.
-Devolve o valor do fluxo m´aximo.
+Devolve o valor do fluxo máximo.
 */
 public int edmondsKarp()
 {
@@ -551,7 +589,7 @@ superior à capacidade do corte
 
 Corte mínimo
 
-Um corte é m´ınimo se não existe nenhum corte com capacidade
+Um corte é mínimo se não existe nenhum corte com capacidade
 inferior
 Nenhum fluxo pode ter um valor superior à capacidade de um
 corte mínimo
@@ -564,8 +602,88 @@ f é um fluxo máximo sse existe um corte (S, T) de G tal que
 
 Arcos anti-paralelos: Podem eliminar-se acrescentado um novo vértice intermédio
 
-Múltiplas fontes e/ou m´ultiplos drenos
-Acrescenta-se uma nova fonte s, ligada `as anteriores por arcos de
-capacidade +∞, e/ou um novo dreno t, a que os anteriores s˜ao ligados
+Múltiplas fontes e/ou múltiplos drenos
+Acrescenta-se uma nova fonte s, ligada às anteriores por arcos de
+capacidade +∞, e/ou um novo dreno t, a que os anteriores são ligados
 por arcos de capacidade +∞
+
+Vértices com capacidade
+Divide-se o vértice u em dois
+1. O vértice de entrada ue , que sería o destino de todos os arcos que
+tinham destino u
+2. O vértice de saída us , que sería a origem de todos os arcos que tinham
+origem u
+Acrescenta-se o arco (ue , us), com a capacidade de u
+
+
 SLIDE 12
+
+Teoria da complexidade
+
+Problema de decisão
+Um problema de decisão é um problema cujas instâncias têm
+resposta sim ou não
+Uma instância de um problema é a concretização do problema para
+um determinado conjunto de valores (input)
+
+P (polynomial time)
+-Classe dos problemas (de decisão) para os quais existe um
+algoritmo, que corre em tempo polinomial, que os resolve
+
+PSPACE
+-Classe dos problemas (de decisão) para os quais existe um
+algoritmo, que usa espa¸co polinomial, que os resolve
+
+EXPTIME
+-Classe dos problemas (de decisão) para os quais existe um
+algoritmo, que corre em tempo exponencial, que os resolve
+                P ⊆ PSPACE ⊆ EXPTIME
+                P ⊂ EXPTIME
+
+NP (nondeterministic polynomial time)
+Classe dos problemas (de decisão) para os quais existe um
+algoritmo não determinista, que corre em tempo polinomial, que os
+resolve
+Equivalentemente, classe dos problemas para os quais é possível
+verificar uma solução das respectivas instâncias em tempo
+polinomial
+
+Os problemas em P são considerados problemas tratáveis
+Os algoritmos que resolvem as respectivas instâncias correm
+em tempo razoável
+Os problemas para os quais não existe um algoritmo polinomial são
+considerados intratáveis
+Um problema NP-completo é um problema em NP “tão difícil”
+quanto qualquer outro problema em NP
+Facto: P ⊆ NP Em aberto: P = NP?
+
+Problema NP
+Um problema de decisão é NP se existe um algoritmo que, dados
+ - uma instância do problema, de dimensão n, e
+ - um certificado, cuja dimensão é O(nk), para algum valor de k,
+verifica, em tempo polinomial, que a resposta ao problema é sim
+
+Problema NP-completo
+Um problema de decisão P é NP-completo se
+ - é um problema NP
+ - qualquer problema NP se pode reduzir, em tempo polinomial, a P
+ 
+
+ ------TODO: (se houver espaço, não importante) EXEMPLO PROBLEMA REDUCAO SLIDE 237---------
+
+ Redução de problemas
+
+O problema A pode ser reduzido ao problema B se qualquer
+instância de A puder ser expressa como uma instância de B cuja
+resposta é a resposta à instância de A
+
+----TODO: IMAGEM É MUITO BOA DOS (238)-------
+
+Se A pode ser reduzido em tempo polinomial a B e se existe um
+algoritmo polinomial que resolve B, então existe um algoritmo
+polinomial que resolve A
+Se A pode ser reduzido em tempo polinomial a B e se A é
+NP-completo, então B é NP-hard (ou NP-difícil); se B ∈ NP
+então B é NP-completo 
+
+---TODO: METER OS EXEMPLOS DA 239 MUITO MUITO CURTINHO not important
