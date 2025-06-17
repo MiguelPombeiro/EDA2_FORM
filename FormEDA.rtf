@@ -1,0 +1,60 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww28600\viewh15200\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\
+1 INITIALIZE-SINGLE-SOURCE(G, s)\
+2 Q <- G.V // fila com prioridade, chave u.d\
+3 while Q != EMPTY do\
+4 	u <- EXTRACT-MIN(Q)\
+5 	for each vertex v in G.adj[u] do\
+6 	RELAX(u, v, w) \
+\
+\
+\
+\
+\
+\
+Algoritmo de Dijkstra em Java (1)\
+\
+public int[] dijkstra(int s)\
+\{\
+	int[] d = new int[nodes]; // dist^ancia para S\
+	int[] p = new int[nodes]; // predecessor no caminho de S\
+	// INITIALIZE-SINGLE-SOURCE\
+	for (int v = 0; v < nodes; ++v)\
+	\{\
+		d[v] = INFINITY;\
+		p[v] = NONE;\
+	\}\
+	d[s] = 0;\
+	// fila come\'b8ca vazia\
+	Queue<KeyValuePair<Integer,Integer>> Q = new PriorityQueue<>();\
+	Q.add(new KeyValuePair<>(0, s));\
+\
+	while (!Q.isEmpty())\
+	\{\
+		KeyValuePair<Integer,Integer> u = Q.remove();\
+		if (u.key > d[u.value])\
+			continue; // caminho mais curto para U j\'b4a encontrado\
+		for (Edge e : adjacents[u.value])\
+		\{\
+			int v = e.destination;\
+			if (d[u.value] + e.weight < d[v]) // RELAX\
+			\{\
+				d[v] = d[u.value] + e.weight;\
+				p[v] = u.value;\
+				Q.add(new KeyValuePair<>(d[v], v));\
+			\}\
+		\}\
+	\}\
+	return d ou p ou ...\
+\}\
+\
+\
+\
+w (G ) = \uc0\u8721 }
