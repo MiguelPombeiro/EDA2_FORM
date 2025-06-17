@@ -1,2 +1,571 @@
 
-w (G ) = ∑
+
+SLIDE 7
+---------------
+MAKE-SETS(n)
+1 let P[1..n] be a new array
+2 for i <- 1 to n do
+3   P[i] <- -1 // i is the representative for set {i}
+4 return P
+---------------
+FIND-SET-BASIC(P, i)
+1 while P[i] > 0 do
+2    i <- P[i]
+3 return i
+----------------
+UNION-BASIC(P, i, j)
+1 P[FIND-SET(P,j)] <- FIND-SET(P, i)
+--------------
+Reunião por tamanho
+Se P[i] = −k, o conjunto de que i é o representante contém k elementos
+
+UNION-BY-SIZE(P, i, j)
+1 ri <- FIND-SET(P, i) // get i’s set representative
+2 rj <- FIND-SET(P, j) // get j’s set representative
+3 if (P[rj] < P[ri]) // j’s set is larger than i’s
+4   P[rj] <- P[rj] + P[ri]
+5   P[ri] <- rj
+6 else // i’s is larger or both have the same size
+7   P[ri] <- P[ri] + P[rj]
+8   P[rj] <- ri
+
+---------------------
+
+Reunião por altura
+Se P[i] = −h, a árvore do conjunto de que i é o representante tem altura h ou inferior
+UNION-BY-RANK(P, i, j)
+1 ri <- FIND-SET(P, i)
+2 rj <- FIND-SET(P, j)
+3 if (P[rj] < P[ri]) // j’s set tree taller than i’s
+4 P[ri] <- rj
+5 else
+6   if (P[rj] == P[ri]) // both heights r the same
+7       P[ri] <- P[ri] - 1
+8   P[rj] <- ri
+
+--------------------------
+
+Compressão de caminho
+FIND-SET-WITH-PATH-COMPRESSION(P, i)
+1 if P[i] < 0 then
+2   return i
+3 P[i] <- FIND-SET-WITH-PATH-COMPRESSION(P, P[i])
+4 return P[i]
+
+
+-----------------
+SLIDE 8
+Análise amortizada da complexidade
+    -Estudo da complexidade com base no comportamento
+temporal de uma sequência de operações sobre uma estrutura
+de dados, no pior caso
+
+Técnicas de Análise amortizada
+
+Análise agregada:
+Se uma sequência de n operações demora tempo T (n), cada
+operação demora  T(n)/n
+
+Método da contabilidade
+A cada operação é associado um custo, cuja diferença para o
+custo real da operação pode ser usada como crédito para
+pagar operações posteriores ou ser abatida ao crédito existente
+
+Método do potencial (É O QUE USAMOS)
+
+O potencial Φ(Di) do estado Di de uma estrutura de dados
+representa energia que pode ser usada em operações futuras
+ - D0 é o estado inicial da estrutura de dados
+ - Di é o estado depois da i-ésima operação
+ - Φ é a função potencial
+ - Φ(D0) é o potencial inicial, em geral 0
+ - Φ(Di) − Φ(Dj), i > j, é a diferença de potencial entre os
+    estados Di e Dj
+ - ci é o custo real da i-ésima operação
+ - O custo amortizado da i-ésima operação, relativo a Φ, é
+    ci = ci + Φ(Di ) − Φ(Di−1)
+
+Pretende-se obter um majorante do custo da sequência de n > 0
+operações
+
+            ----------------- IMAGEM DOS SOMATORIOS-----------------
+Logo, a funçao Φ tem de ser tal que, para qualquer 0 < i ≤ n,
+Φ(Di) ≥ Φ(D0)
+
+
+--------------- meter exemplos na parte trás, especialmente os diferentes das praticas + tabela---------
+
+
+
+SLIDE 9
+
+
+Cálculo dos caminhos de menor peso de um nó s para os restantes
+nós do grafo (single-source shortest paths):
+
+O caminho p é mais curto que o caminho p′ se o peso de p é
+menor que o peso de p′
+
+1. Cálculo dos caminhos mais curtos num grafo orientado acíclico
+(DAG), com pesos possivelmente negativos
+2. Algoritmo de Dijkstra, só aplicável a grafos sem pesos negativos
+3. Algoritmo de Bellman-Ford, aplicável a qualquer grafo pesado
+
+
+Funções comuns aos diversos algoritmos
+
+O peso do caminho mais curto de s a qualquer outro nó é
+inicializado com ∞
+
+-----
+INITIALIZE-SINGLE-SOURCE(G, s)
+1 for each vertex v in G.V do
+2   v.d <- INFINITY // peso do caminho mais curto de s a v
+3   v.p <- NIL // predecessor de v nesse caminho
+4 s.d <- 0 // peso do caminho mais curto de s a s
+-----
+
+Se o caminho de s a v, que passa por u e pelo arco (u, v), com
+peso w(u, v), tem menor peso do que o mais curto anteriormente
+encontrado, encontrámos um caminho mais curto
+
+-----
+Atualiza o peso do caminho mais curto
+RELAX(u, v, w)
+1 if u.d + w(u,v) < v.d then
+2   v.d <- u.d + w(u,v)
+3   v.p <- u
+-----
+
+DAG = Directed Acyclic Graph (pode ter pesos negativos)
+
+------
+DAG-SHORTEST-PATHS(G, w, s)
+1 topologically sort the vertices of G
+2 INITIALIZE-SINGLE-SOURCE(G, s)
+3 for each vertex u, in topologically sorted order do
+4   for each vertex v in G.adj[u] do
+5     RELAX(u, v, w)
+------
+
+
+Algoritmo de Dijkstra
+
+G = (V, E) é um um grafo pesado orientado (sem pesos negativos)
+
+------
+DIJKSTRA(G, w, s)
+1 INITIALIZE-SINGLE-SOURCE(G, s)
+2 Q <- G.V       // fila com prioridade, chave u.d
+3 while Q != EMPTY do
+4   u <- EXTRACT-MIN(Q)
+5   for each vertex v in G.adj[u] do
+6     RELAX(u, v, w)      // pode alterar Q!
+------
+
+Quando é encontrado um novo caminho mais curto para um 
+vértice (na função RELAX), pode ser necessário reorganizar 
+a fila Q (DECREASE-KEY).
+
+------
+Algoritmo de Dijkstra em Java (1)
+
+public int[] dijkstra(int s)
+{
+	int[] d = new int[nodes]; // dist^ancia para S
+	int[] p = new int[nodes]; // predecessor no caminho de S
+	// INITIALIZE-SINGLE-SOURCE
+	for (int v = 0; v < nodes; ++v)
+	{
+		d[v] = INFINITY;
+		p[v] = NONE;
+	}
+	d[s] = 0;
+	// fila começa vazia
+	Queue<KeyValuePair<Integer,Integer>> Q = new PriorityQueue<>();
+	Q.add(new KeyValuePair<>(0, s));
+
+	while (!Q.isEmpty())
+	{
+		KeyValuePair<Integer,Integer> u = Q.remove();
+		if (u.key > d[u.value])
+			continue; // caminho mais curto para U j´a encontrado
+		for (Edge e : adjacents[u.value])
+		{
+			int v = e.destination;
+			if (d[u.value] + e.weight < d[v]) // RELAX
+			{
+				d[v] = d[u.value] + e.weight;
+				p[v] = u.value;
+				Q.add(new KeyValuePair<>(d[v], v));
+			}
+		}
+	}
+	return d ou p ou ...
+}
+
+------
+
+Algoritmo de Bellman-Ford
+
+G = (V, E) é um grafo pesado orientado (pode ter pesos negativos)
+------
+BELLMAN-FORD(G, w, s)
+1 INITIALIZE-SINGLE-SOURCE(G, s)
+2 for i <- 1 to |G.V| - 1 do
+3   for each edge (u,v) in G.E do
+4       RELAX(u, v, w)
+5 for each edge (u,v) in G.E do
+6       if u.d + w(u,v) < v.d then
+7           return FALSE // detecta ciclo c/ peso negativo
+8 return TRUE
+-------
+
+--------Exemplos de uso do Bellman-Ford--------
+
+--------Tabela das complexidades dos algoritmos de caminhos mais curtos--------
+Caminhos mais curtos num DAG Θ(V + E)
+Algoritmo de Dijkstra O((V + E) log V)
+Algoritmo de Bellman-Ford O(VE)
+Algoritmo de Floyd-Warshall Θ(V^3)
+
+
+SLIDE 10
+
+
+
+
+Caminhos mais curtos entre cada dois vrtices de um grafo
+
+Vértices intermédios de um caminho:
+
+Os vértices intermédios de um caminho simples v1 v2 . . . vl são os
+vértices {v2, . . . , vl−1}
+
+-----------
+Algoritmo de Floyd-Warshall:
+
+Seja G = (V , E ) um grafo pesado, com V = {1, 2, . . . , n}
+Seja p um caminho mais curto simples do vértice i para o vértice j,
+cujos vértices intermédios estão contidos em {1, 2, . . . , k}
+ - Se k não é um nó intermédio de p, os nós intermédios de p
+estão contidos em {1, 2, . . . , k−1}
+ - Se k é um nó intermédio de p, então p pode decompor-se
+num caminho p1 de i para k e num caminho p2 de k para j
+ - Os nós intermédios de p1 e de p2 estão contidos em
+{1, 2, . . . , k−1} (porque p é um caminho simples)
+ - p1 e p2 são caminhos mais curtos de i para k e de k para j,
+respectivamente, considerando só os caminhos cujos nós
+intermédios estão em {1, 2, . . . , k−1}
+
+Wij: matriz de adjacências do grafo
+    - 0       se i = j
+    - w(i, j) se i ≠ j ∧ (i, j) ∈ E
+    - ∞       se i ≠ j ∧ (i, j) ∉ E
+
+dij^(k): peso de um caminho mais curto de i para j com n´os
+interm´edios contidos em {1, 2, . . . , k}
+    - se k = 0 : Wij 
+    - se k ≥ 1 : min{dij^(k−1), dik^(k−1) + dkj^(k−1)}
+Queremos calcular dij^(n) , i, j ∈ V
+    
+FLOYD WARSHAL CALCULO ITERATIVO MATRIZES
+
+FLOYD-WARSHALL-1(w)
+1 n <- w.rows
+2 d^(0) <- w
+3 for k <- 1 to n do
+4   let d^(k)[1..n,1..n] be a new matrix
+5   for i <- 1 to n do
+6       for j <- 1 to n do
+7           d^(k)[i,j] <-
+            min(d^(k - 1)[i,j], d^(k - 1)[i,k] + d^(k - 1)[k,j])
+8 return d^(n)
+
+Predecessores:
+O predecessor de vj no caminho q = vi . . . vj
+ - Não existe, se q = vj
+ - É vi , se q = vi vj
+ - É o predecessor de vj no caminho vk . . . vj , se
+   q = vi . . . vk . . . vj
+
+πij : predecessor de vj num caminho mais curto de vi para vj
+ - NIL se i = j
+ - i se um caminho mais curto de i para j é vi vj
+ - πkj se um caminho mais curto de i para j é vi . . . vk . . . vj
+   (k é um nó intermédio do caminho)
+ - NIL se dij = ∞ (ou seja, não existe caminho mais curto de vi para vj)
+
+FLOYD-WARSHALL(w)
+1 n <- w.rows
+2 d <- w
+3 let p[1..n,1..n] be a new matrix // p[i,j] ≡ π ij
+4 for i <- 1 to n do
+5    for j <- 1 to n do
+6       if i = j or w[i,j] = ∞ then
+7          p[i,j] <- NIL //1o e 4o caso dos pred
+8       else
+9          p[i,j] <- i // (i,j) ∈ E //2o caso dos p
+10 for k <- 1 to n do
+11   for i <- 1 to n do
+12      for j <- 1 to n do
+13        if d[i,k] + d[k,j] < d[i,j] then
+14          d[i,j] <- d[i,k] + d[k,j]
+15          p[i,j] <- p[k,j] //3o caso dos pred
+16 return d and p
+
+
+SLIDE 11
+
+Cada ligação liga dois pontos da rede, tem uma direção e uma capacidade
+Em cada rede de fluxos existem dois pontos especiais:
+    - Fonte (source) Origem de tudo o que flui na rede
+    - Dreno (sink) Destino final de tudo o que flui na rede
+
+Rede de fluxos (Flow network)
+    - Modelada através de um grafo orientado G = (V,E)
+    - c(u,v) > 0 é a capacidade do arco (u,v)
+    - s ∈ V é a fonte (source) da rede
+    - t ∈ V é o dreno (sink) da rede (s 6 = t)
+    - Se (u,v) ∈ E, então (v,u) ∉ E
+    - Assume-se que, qualquer que seja o vértice v ∈ V, existe um
+      caminho s . . . v . . . t
+      (Logo, |E| ≥ |V| − 1)
+
+
+Restrição de capacidade: O fluxo que passa numa ligação não
+pode exceder a sua capacidade.
+            0 ≤ f (u,v) ≤ c(u,v)
+
+Conservação de fluxo: O fluxo que entra num vértice
+(diferente de s e de t) é igual ao fluxo que sai do vértice.
+           ∀u ∈ V\{s, t}, ∑v∈V  f(v,u) = ∑v∈V  f(u,v)
+------------------ Print somatorio do slide 200 ----------------
+
+
+O valor de um fluxo é o fluxo produzido pela fonte s.
+
+|f| = ∑v∈V f(s,v) − ∑v∈V f(v,s)
+
+
+Dado um fluxo f, a capacidade residual cf da rede G=(V,E) 
+é a rede Gf=(V,Ef) tal que cf(u,v) =
+    -> c(u,v) − f(u,v)    ,se (u,v) ∈ E
+    -> f(v,u)             ,se (v,u) ∈ E
+    -> 0                  ,caso contrário
+
+
+
+A rede residual resultante é Gf = (V , E'), com
+        E' = { (u,v) ∈ E | c(u,v) > 0 }
+
+
+
+
+
+
+Complexidade temporal do algoritmo de Edmonds-Karp
+    Grafo representado através de listas de adjacências
+    Linhas
+    1–2  Ciclo executado |E | vezes
+    3    Construção da rede residual: Θ(V + E)
+    4–12 Ciclo executado O(VE ) vezes
+    4    Percurso em largura no grafo: O(V + E)
+    6–11 Ciclo executado O(V ) vezes
+    12   Actualização da rede residual: O(V)
+    
+    Complexidade temporal do algoritmo
+        Θ(E ) + Θ(V + E) + O(VE (V + E)) = O(VE^2)
+    (∀ v ∈ V , existe um caminho s . . . v . . . t, pelo que |E | ≥ |V | − 1)
+    Restantes operações com complexidade temporal constante
+
+
+EDMONDS-KARP(G, s, t)
+1 for each edge (u,v) in G.E do
+2 	(u,v).f <- 0 		// initial flow f(u,v) = 0
+3 Gf <- RESIDUAL-NET(G)
+4 while (cf <- BFS-FIND-PATH(Gf, s, t)) > 0 do
+5		v <- t
+6 	while v.p != NIL do
+7 		if edge (v.p,v) is in G.E then
+8 			(v.p,v).f = (v.p,v).f + cf // flow increase
+9 		else 					// edge (v,v.p) is in G.E
+10 			(v,v.p).f = (v,v.p).f - cf // cancelled flow
+11 		v <- v.p
+12 UPDATE(Gf, G) 
+
+
+
+-------EDMONDS-KARP EM JAVA -------------
+
+/*
+Actualiza as capacidades (residuais) do arcos (FROM,TO) e
+(TO,FROM) de uma rede residual.
+O arco (FROM,TO) é o arco da rede de fluxos, com capacidade
+CAPACITY e fluxo FLOW.
+*/
+private void updateResidualCapacity(int from, int to, int capacity, int flow)
+{
+    for (Edge e : adjacents[from])
+        if (e.destination() == to)
+            {
+              e.capacity(capacity - flow); break;
+            }
+    for (Edge e : adjacents[to])
+        if (e.destination() == from)
+            {
+              e.capacity(flow); break;
+            }
+}
+
+
+/*
+Aumenta em INCREMENT o fluxo ao longo do caminho
+SOURCE ... P[P[SINK]] P[SINK] SINK
+percorrendo-o do fim (SINK) para o início (SOURCE)
+SINK P[SINK] P[P[SINK]] ... SOURCE
+e actualiza a rede residual R correspondente.
+*/
+
+private void incrementFlow(int[] p, int increment, FlowNetwork r)
+{
+    int v = sink;
+    int u = p[v];
+    while (u != NONE){
+        boolean uv = false; // is (u,v) an edge in the network?
+        for (Edge e : adjacents[u])
+        {
+            if (e.getDestination() == v)
+            {
+                e.setFlow(e.getFlow() + increment);
+                r.updateResidualCapacity(u, v, e.getCapacity(), e.getFlow());
+                uv = true; // (u,v) is an edge in the network
+                break;
+            }
+        } 
+
+        //if (u, v) is not an edge in the network, then (v,u) is
+        if (!uv)
+        {
+            for (Edge e : adjacents[v])
+            {
+                if (e.getDestination() == u)
+                {
+                    e.setFlow(e.getFlow() - increment);
+                    r.updateResidualCapacity(v, u, e.getCapacity(), e.getFlow());
+                    break;
+                }
+            }
+        }
+        v = u;
+        u = p[v];
+    }
+}
+
+/*
+Percurso em largura para encontrar um caminho de menor
+comprimento, de SOURCE para SINK, numa rede residual.
+Guarda o predecessor de cada nó em P e devolve a capacidade
+residual do caminho. Devolve 0 se não há caminho.
+*/
+private int findPath(int[] p)
+{
+    int[] cf = new int[nodes];  // Smallest residual capacity of the path
+                                // cf[v] = 0 until the node is found
+    Queue<Integer> q = new LinkedList<>();
+
+    for (int u = 0; u < nodes; ++u){
+        p[u] = NONE; // predecessor of u
+    }
+    cf[source] = INFINITY; // Looking for the minimum value
+
+    q.add(source);
+    
+    while (!q.isEmpty())
+    {
+        int u = q.remove();
+        if (u == sink)
+        {
+            break; // Path found
+        }
+        for (Edge e : adjacents[u])
+        {
+            int v = e.getDestination();
+            if (e.getCapacity() > 0 && cf[v] == 0)
+            {
+                cf[v] = Math.min(cf[u], e.getCapacity());
+                p[v] = u;
+                q.add(v);
+            }
+        }
+    }
+    return cf[sink];
+}
+
+/*
+Algoritmo de Edmonds-Karp.
+Devolve o valor do fluxo m´aximo.
+*/
+public int edmondsKarp()
+{
+    FlowNetwork r = buildResidualNetwork();
+    int flowValue = 0; // Initial flow value
+        // Predecessor array to store the path from SOURCE to SINK
+    int[] p = new int[nodes];
+    int increment; // Incremental flow value
+
+    while ((increment = r.findPath(p)) > 0)
+    {
+        // Increments the flow and updates the residual network
+        incrementFlow(p, increment, r);
+        flowValue += increment; // Current flow value
+    }
+    
+    return flowValue;
+}
+
+CORTES
+
+Um corte (cut) (S, T ), numa rede de fluxos G = (V , E), é uma
+partição de V tal que
+ - s ∈ S
+ - t ∈ T
+ - T = V − S
+A capacidade do corte (S, T ) é soma das capacidades das ligações
+que o atravessam, de S para T
+c(S, T ) = ∑u∈S ∑v∈T c(u, v)
+           
+c(u, v )
+Considera-se que c(u, v) = 0, se (u, v ) ∉ Eh
+
+Dado um fluxo f, o fluxo (líquido) que atravessa o corte (S, T ) é a
+diferença entre o fluxo que o atravessa de S para T e o que o
+atravessa de T para S
+
+    f(S, T) = ∑u∈S ∑v∈T f(u, v) - ∑u∈S ∑v∈T f(v, u)
+
+O fluxo (líquido) que atravessa o corte (S, T ) não pode ser
+superior à capacidade do corte
+
+    f(S, T) ≤ c(S, T)
+
+Corte mínimo
+
+Um corte é m´ınimo se não existe nenhum corte com capacidade
+inferior
+Nenhum fluxo pode ter um valor superior à capacidade de um
+corte mínimo
+
+Teorema do fluxo-máximo corte-mínimo
+(Max-flow min-cut theorem)
+Seja G = (V , E ) uma rede de fluxos e f um fluxo em G
+f é um fluxo máximo sse existe um corte (S, T) de G tal que
+|f | = c(S, T)
+
+Arcos anti-paralelos: Podem eliminar-se acrescentado um novo vértice intermédio
+
+Múltiplas fontes e/ou m´ultiplos drenos
+Acrescenta-se uma nova fonte s, ligada `as anteriores por arcos de
+capacidade +∞, e/ou um novo dreno t, a que os anteriores s˜ao ligados
+por arcos de capacidade +∞
+SLIDE 12
