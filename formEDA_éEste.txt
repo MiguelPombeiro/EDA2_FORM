@@ -688,3 +688,78 @@ NP-completo, então B é NP-hard (ou NP-difícil); se B ∈ NP
 então B é NP-completo 
 
 ---TODO: METER OS EXEMPLOS DA 239 MUITO MUITO CURTINHO not important
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------------------------------------------------
+PROBLEMS AND EXAMPLES
+-----------------------------------------------------------------------------------------
+Certificados de problemas comuns:
+Problem	Certificate
+Traveling Salesman (decision)	Tour (list of cities)
+Hamiltonian Cycle	The cycle (sequence of nodes)
+Graph Coloring (k-coloring)	Assignment of colors to vertices
+Subset Sum	The subset summing to target
+SAT / 3SAT	Assignment of variables
+Set Cover	The chosen k subsets covering universe
+Longest Path	The path of length ≥ k
+Steiner Tree	The tree connecting terminals
+Subset Product	The subset whose product equals target
+Clique	The set of vertices forming a clique
+Vertex Cover	The set of vertices covering edges
+Independent Set	The set of vertices not adjacent to each other
+Exact Cover	The set of subsets covering universe exactly
+Knapsack-01	The items in the knapsack
+
+Reduções de problemas comuns:
+PARTITION → SUBSET-SUM	Direct subset sum formulation	
+3SAT → 3COLORING	Build truth gadget, variable & clause gadgets	
+INDEPENDENT SET → CLIQUE	Use complement graph	
+SUBSET SUM → PARTITION	Use total sum to create partition instance	
+PARTITION → KNAPSACK-01	Map partition sums to knapsack weights	
+PLANAR 3SAT → PLANAR CIRCUIT SAT	Gadget for planar circuits	
+HAMILTONIAN CYCLE → TSP	Use weight trick (1 vs large)	
+3SAT → 3COLORING	Truth gadget, variable gadget, clause gadget
+3SAT → VERTEX COVER	Build gadgets where VC solution reflects satisfying assignment
+3SAT → EXACT COVER	
+3SAT → SET COVER
+Edge Cover ↔ Maximum Matching	Minimum Edge Cover =
+Edge Cover → Set Cover	Model edges as sets covering vertices
+Edge Cover ↔ Edge Packing (Matching)	Dual problems
+Edge Cover ↔ Vertex Cover	Informal similarity but no NP-hard reduction
+Subset Sum (from Vertex Cover)
+
+First, unless you're just doing homework, you have to decide which NP-hard problem to reduce to your problem. 
+This is largely a question of "smell". If the number 3 appears anywhere in the problem statement,
+ try reducing from 3SAT or 3Color or 3Partition. (Yes, I'm serious.) If your problem involves finding
+  an optimal subsequence or permutation or path, try reducing from HamiltonianCycle or HamiltonianPath. 
+  If your problem asks for the smallest subset with a certain property, try Clique; 
+  if it asks for the largest subset with a certain property, try IndependentSet.
+   If your problem involves doing something in the plane, try PlanarCircuitSAT or PlanarTSP. 
+   And so on. If your problem doesn't "smell" like anything, 3SAT or CircuitSAT is probably your best bet.
+
+   To transform an instance of 3SAT ,you'll need a gadget for each variable and for each 
+   clause in the input formula. Each variable gadget should have two "states" that correspond to 
+   "true" and "false". Each clause gadget should also have multiple "states", each of which somehow 
+   forces at least one of the literals in that clause to be true. (The states are not part of the
+    output of the reduction algorithm.)
+
+To transform an instance of 3Color, you'll need a gadget for each vertex and each edge of the 
+input graph, and another gadget to define the three colors.
+
+To transform an instance of PlanarCircuitSat
+, you'll need a gadget for each input, for each wire, and for each gate 
+in the input circuit.
